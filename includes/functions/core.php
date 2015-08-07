@@ -4,7 +4,7 @@ namespace TenUp\A1D_Monitoring_and_Management\Core;
 // Include administrastive functions
 include_once( __DIR__ . '/admin.php' );
 // Include custom post functions
-include_once( __DIR__ . '/custom-page.php' );
+include_once( __DIR__ . '/custom-page-archive.php' );
 
 /**
  * Default setup routine

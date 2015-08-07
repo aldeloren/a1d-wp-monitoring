@@ -1,0 +1,10 @@
+{
+	"version": 3,
+	"file": "ad-monitoring-and-management-custom-page.css",
+	"sources": [
+		"sass/ad-monitoring-and-management-custom-page.scss"
+	],
+	"sourcesContent": [],
+	"mappings": "AAKG,IAAI,AAAA,QAAQ,CAAJ;EACP,KAAK,EAAE,CAAE,GADD;;AAKZ,MAAM,EAAL,SAAS,EAAE,KAAK;EACf,QAAQ,CAAA;IACN,QAAQ,EAAE,KAAM;IAChB,GAAG,EAAE,IAAK;IACV,MAAM,EAAE,CAAE;IACV,IAAI,EAAE,CAAE;IACR,OAAO,EAAE,KAAM;IACf,UAAU,EAAE,MAAO;IACnB,UAAU,EAAE,IAAK;IACjB,UAAU,EAAE,OAAO;IACnB,YAAY,EAAE,GAAG,CAAC,KAAK,CAlBT,IAAI,GASX",
+	"names": []
+}

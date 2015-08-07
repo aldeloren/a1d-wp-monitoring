@@ -1,0 +1,16 @@
+body::before {
+  width: 0; }
+
+@media (min-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 32px;
+    bottom: 0;
+    left: 0;
+    display: block;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background: #f1f1f1;
+    border-right: 1px solid #eee; } }
+
+/*# sourceMappingURL=ad-monitoring-and-management-custom-page.css.map */

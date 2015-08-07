@@ -52,7 +52,8 @@ module.exports = function( grunt ) {
 			all: {
 				files: {
 					'assets/css/ad-monitoring-and-management.css': 'assets/css/sass/ad-monitoring-and-management.scss',
-					'assets/css/ad-monitoring-and-management-admin.css': 'assets/css/sass/ad-monitoring-and-management-admin.scss'
+					'assets/css/ad-monitoring-and-management-admin.css': 'assets/css/sass/ad-monitoring-and-management-admin.scss',
+					'assets/css/ad-monitoring-and-management-custom-page.css': 'assets/css/sass/ad-monitoring-and-management-custom-page.scss'
 				}
 			}
 		},
