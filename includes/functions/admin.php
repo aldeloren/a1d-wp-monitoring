@@ -98,17 +98,59 @@ function a1dmonitor_settings_api_key() {
 }
 
 /*
+ * Validate user input of monitoring options
+ * 
+ * @returns array validated input
+ */
+
+function a1dmonitor_options_validation( $input ) {
+  
+  $options = get_option( 'a1dmonitor_monitoring_options' ); 
+  $new_input = array();
+
+  if ( $input['api_key'] ) {
+    if ( true === is_uptime_robot_api_key_is_valid( $input['api_key'] ) ) {
+     $new_input['api_key'] = $input['api_key']; 
+    } else { 
+      $new_input['api_key'] = '';
+      //show error
+    }
+    return $new_input;
+  }
+}
+
+/*
  * Validates Uptime Robot API key
+ *
+ * @uses wp_remote_get()
+ * @uses wp_remote_retrieve_body()
+ * @uses is_wp_error()
  *
  * @returns  bool
  */
 
 function is_uptime_robot_api_key_is_valid( $key ) {
 
-  $key = trim( $key );
+  $key = sanitize_key( trim( $key ) );
   $validity = false;
-  if ( ctype_alnum( $key ) && 32 === strlen( $key ) ) {
-    $validity = true;
+  if ( preg_match( "/^[A-Za-z0-9-]+$/", $key ) && 32 === strlen( $key ) ) {
+    //$validity = true;
+    $uri = "https://api.uptimerobot.com/getMonitors?apiKey={$key}";
+    $response = wp_remote_get( $uri ); 
+    if ( !is_wp_error( $response ) ) {
+      $xml = simplexml_load_string( wp_remote_retrieve_body( $response ) );
+      if ( !is_wp_error( $xml ) ) {
+        $id = $xml->attributes()->id;
+        // id codes reserved for key errors
+        // 100: apiKey not mentioned or in a wrong format
+        // 101: apiKey is wrong
+        // See https://uptimerobot.com/api for more documentation
+        $api_errors = ["100", "101"];
+        if ( !in_array( $id, $api_errors ) ) {
+          $validity = true;
+        }
+      }
+    }
   }
   return $validity;
 }
