@@ -21,6 +21,7 @@ function setup() {
 	add_action( 'init', $n( 'init' ) );
   add_action( 'admin_menu', $n( 'register_a1dmonitor_admin' ) );
   add_action( 'admin_menu', $n( 'a1dmonitor_settings_init' ) );
+  add_action( 'admin_enqueue_scripts', $n( 'a1dmonitor_load_admin_styles' ) );
 
 	do_action( 'a1dmonitor_loaded' );
 	do_action( 'register_a1dmonitor_admin' );

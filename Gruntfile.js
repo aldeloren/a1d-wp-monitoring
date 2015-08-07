@@ -51,7 +51,8 @@ module.exports = function( grunt ) {
 			},
 			all: {
 				files: {
-					'assets/css/ad-monitoring-and-management.css': 'assets/css/sass/ad-monitoring-and-management.scss'
+					'assets/css/ad-monitoring-and-management.css': 'assets/css/sass/ad-monitoring-and-management.scss',
+					'assets/css/ad-monitoring-and-management-admin.css': 'assets/css/sass/ad-monitoring-and-management-admin.scss'
 				}
 			}
 		},
@@ -98,7 +99,7 @@ module.exports = function( grunt ) {
 			},
 			styles: { 
 				files: ['assets/css/sass/**/*.scss'],
-				tasks: ['sass', 'autoprefixer', 'cssmin'],
+				tasks: ['sass', 'cssmin'],
 				options: {
 					debounceDelay: 500
 				}

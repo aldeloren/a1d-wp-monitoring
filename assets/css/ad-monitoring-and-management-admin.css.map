@@ -1,0 +1,11 @@
+{
+	"version": 3,
+	"file": "ad-monitoring-and-management-admin.css",
+	"sources": [
+		"sass/ad-monitoring-and-management-admin.scss",
+		"sass/ad-monitoring-and-management-common.scss"
+	],
+	"sourcesContent": [],
+	"mappings": "AAEA,4BAA4B,CAAA;EAC1B,KAAK,EAAE,OAAQ;EACf,SAAS,EAAE,GAAI,GAFY",
+	"names": []
+}

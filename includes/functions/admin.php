@@ -19,7 +19,7 @@ namespace TenUp\A1D_Monitoring_and_Management\Core;
 
 function a1dmonitor_load_admin_styles() {
 
-  wp_register_style( 'a1dmonitor_admin_css' , A1DMONITOR_URL . '/assets/css/ad-wp-monitoring-and-management-admin.css', false );
+  wp_register_style( 'a1dmonitor_admin_css' , A1DMONITOR_URL . '/assets/css/ad-monitoring-and-management-admin.css', false );
   wp_enqueue_style( 'a1dmonitor_admin_css' );
 } 
 
@@ -90,7 +90,11 @@ function a1dmonitor_settings_api_key() {
   
   $options = get_option( 'a1dmonitor_monitoring_options' );
   if ( array_key_exists( 'api_key', $options ) ) {
+    $valid_api_key = is_uptime_robot_api_key_is_valid( $options['api_key'] );
     $api_key_option = "<input id='a1dmonitor_api_key' type='text' name='a1dmonitor_monitoring_options[api_key]' value='{$options['api_key']}' required  title='Please enter a valid 32 character Main API key'>";
+    if ( true === $valid_api_key ) {
+      $api_key_option .= "<span class='a1dmonitor_admin_valid_icon dashicons dashicons-yes'></span>";
+    }
   } else {
     $api_key_option = "<input id='a1dmonitor_api_key' type='text' name='a1dmonitor_monitoring_options[api_key]' value='' required title='Please enter a valid 32 character Main API key'>";
   }
