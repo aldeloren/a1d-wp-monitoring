@@ -1,11 +1,40 @@
 // TODO reset all theme stylings
-
 $a1dmonitor-gray: #eee;
 
 body{
   &::before{
     width: 0;
   }
+}
+
+.a1dmonitor-site-title-url{
+  font-size: .7em;
+  color: darken($a1dmonitor-gray, 20%);
+}
+
+.a1dmonitor-container{
+  div{
+    // Important to compensate of knob.js inline styles
+    display: block !important;
+    margin: 0 auto;
+  }
+}
+
+.a1dmonitor-nav-item.active{
+  background: #2980b9;
+  
+  a{
+    color: #fff;
+    &:hover{
+      background-color: #2980b9;
+    }
+  }
+}
+
+.a1dmonitor-status-image{
+  display: block;
+  max-width: 28%;
+  margin: 0 auto;
 }
 
 @media (min-width: 768px) {

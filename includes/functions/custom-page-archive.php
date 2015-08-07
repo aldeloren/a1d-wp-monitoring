@@ -191,6 +191,7 @@ function a1dmonitor_page_archive_styles() {
     wp_enqueue_style( 'a1dmonitor_custom_styles', A1DMONITOR_URL . '/assets/css/ad-monitoring-and-management-custom-page.css', array( 'a1dmonitor-custom-styles-bootstrap' ) );
     wp_enqueue_script( 'a1dmonitor_custom_scripts_jquery', A1DMONITOR_URL . '/assets/js/jquery.min.js' );
     wp_enqueue_script( 'a1dmonitor_custom_scripts_bootstrap', A1DMONITOR_URL . '/assets/js/bootstrap.min.js', array( 'a1dmonitor_custom_scripts_jquery' ) );
+    wp_enqueue_script( 'a1dmonitor_custom_scripts_knob', A1DMONITOR_URL . '/assets/js/jquery.knob.min.js', array( 'a1dmonitor_custom_scripts_jquery' ) );
   }
 }
 

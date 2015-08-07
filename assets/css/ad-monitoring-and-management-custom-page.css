@@ -1,6 +1,26 @@
 body::before {
   width: 0; }
 
+.a1dmonitor-site-title-url {
+  font-size: .7em;
+  color: #bbbbbb; }
+
+.a1dmonitor-container div {
+  display: block !important;
+  margin: 0 auto; }
+
+.a1dmonitor-nav-item.active {
+  background: #2980b9; }
+  .a1dmonitor-nav-item.active a {
+    color: #fff; }
+    .a1dmonitor-nav-item.active a:hover {
+      background-color: #2980b9; }
+
+.a1dmonitor-status-image {
+  display: block;
+  max-width: 28%;
+  margin: 0 auto; }
+
 @media (min-width: 768px) {
   .sidebar {
     position: fixed;

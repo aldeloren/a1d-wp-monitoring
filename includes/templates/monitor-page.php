@@ -16,14 +16,21 @@ wp_head() ?>
 <body>
   <div class="row">
     <div class="col-sm-3 col-md-2 sidebar">
+    <h2>Monitoring</h2>
     <?php a1dmonitor_build_sidenav( a1dmonitor_monitors() ); ?>
     </div>
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-      This is the main content
+
+    <?php a1dmonitor_build_main(); ?> 
+
     </div>
   </div>
 
-
+<script>
+    $(document).ready(function() {
+        $(".a1dmonitor-response-time").knob();
+    });
+</script>
 <?php wp_footer(); ?>
 </body>
 </html>
