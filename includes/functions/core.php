@@ -3,6 +3,8 @@ namespace TenUp\A1D_Monitoring_and_Management\Core;
 
 // Include administrastive functions
 include_once( __DIR__ . '/admin.php' );
+// Include custom post functions
+include_once( __DIR__ . '/custom-page.php' );
 
 /**
  * Default setup routine
@@ -19,6 +21,7 @@ function setup() {
 
 	add_action( 'init', $n( 'i18n' ) );
 	add_action( 'init', $n( 'init' ) );
+  add_action( 'init', $n( 'a1dmonitor_register_custom_post' ) );
   add_action( 'admin_menu', $n( 'register_a1dmonitor_admin' ) );
   add_action( 'admin_menu', $n( 'a1dmonitor_settings_init' ) );
   add_action( 'admin_enqueue_scripts', $n( 'a1dmonitor_load_admin_styles' ) );

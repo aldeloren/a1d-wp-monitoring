@@ -66,14 +66,15 @@ function a1dmonitor_settings_init() {
 
 function a1dmonitor_settings_info() {
 
-    $options = get_option( 'a1dmonitor_monitoring_options' );
-    $info = '';
-    $is_registered = false;
-    if ( array_key_exists( 'api_key', $options ) ) {
-      if ( true === is_uptime_robot_api_key_is_valid( $options['api_key'] ) ) {
-        $is_registered = true;
-      } 
-    }; 
+  $options = get_option( 'a1dmonitor_monitoring_options' );
+  $info = '';
+  $is_registered = false;
+  if ( array_key_exists( 'api_key', $options ) ) {
+    if ( true === is_uptime_robot_api_key_is_valid( $options['api_key'] ) ) {
+      $is_registered = true;
+      a1dmonitor_register_custom_post();
+    } 
+  }; 
 
   if ( false == $is_registered ) {
     $info .= "<p class='a1dmonitor_important'>This plugin utilizes the Uptime Robot service to monitor your WordPress site(s). Please register with the site <a href='https://uptimerobot.com/#newUser' target='_blank'>here</a> by clicking the 'Sign-up (free)' button. Once registered, please retreive your Main API key <a href='https://uptimerobot.com/dashboard#mySettings' target='_blank'>here</a>, and scrolling to the API Settings section.";
