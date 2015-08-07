@@ -77,7 +77,7 @@ function a1dmonitor_monitor_site_url() {
 
   global $post;
   $site_url = get_post_meta( $post->ID, 'a1dmonitor_site_url', true );
-  
+
   echo "<input type='hidden' name='a1dmonitor_site_url_noncename' id='a1dmonitor_site_url_noncename' value='" . wp_create_nonce( plugin_basename(__FILE__) ) . "' />";
   echo "<input type='url' name='a1dmonitor_site_url' value='{$site_url}' required title='Please enter valid site URL to monitor'  placeholder='Enter valid site URL'class='widefat' />";
 }
@@ -104,14 +104,40 @@ function a1dmonitor_save_meta_values() {
     if( get_post_meta( $post->ID, $key, FALSE ) ) { 
       update_post_meta( $post->ID, $key, $value );
     } else { 
+      $ur_monitor_id = a1dmonitor_new_monitor( $value );
       add_post_meta( $post->ID, $key, $value );
+      add_post_meta( $post->ID, 'a1dmonitor_ur_id', $ur_monitor_id );
     }
     if( !$value ) delete_post_meta( $post->ID, $key );
   }
-  delete_post_meta($post->ID, 'hello', 'ma' );
 }
 
 add_action( 'save_post', __NAMESPACE__ . '\a1dmonitor_save_meta_values', 1, 2 );
+
+/*
+ * Register a new Uptime Robot monitor
+ *
+ *
+ *@returns string UR id 
+ */
+
+function a1dmonitor_new_monitor( $url ) {
+
+  global $post;
+  $options = get_option( 'a1dmonitor_monitoring_options' );
+  $api_key = $options['api_key'];
+  $friendly_name = urlencode( get_the_title( $post->ID ) ); 
+  $monitor_url = urlencode( $url );
+  $api_url = "https://api.uptimerobot.com/newMonitor?apiKey={$api_key}&monitorFriendlyName={$friendly_name}&monitorURL={$monitor_url}&monitorType=1";
+
+
+  $response = wp_remote_get( $api_url ); 
+  $xml = simplexml_load_string ( $response['body'] );
+  // Error ids are within the 200's
+  if ( 240 < intval( $xml->attributes()->id ) ) {
+   return intval( $xml->attributes()->id ); 
+  }
+}
 
 /*
  * Register templates for monitor pages
