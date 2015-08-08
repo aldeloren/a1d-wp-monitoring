@@ -5,9 +5,15 @@ body::before {
   font-size: .7em;
   color: #bbbbbb; }
 
+.a1dmonitor-site-archive-url {
+  color: #bbbbbb; }
+
 .a1dmonitor-container div {
   display: block !important;
   margin: 0 auto; }
+
+.a1dmonitor-archive-monitor-item {
+  border-bottom: 1px solid #eee; }
 
 .a1dmonitor-nav-item.active {
   background: #2980b9; }

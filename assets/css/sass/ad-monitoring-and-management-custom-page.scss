@@ -12,12 +12,20 @@ body{
   color: darken($a1dmonitor-gray, 20%);
 }
 
+.a1dmonitor-site-archive-url{
+  color: darken($a1dmonitor-gray, 20%);
+}
+
 .a1dmonitor-container{
   div{
     // Important to compensate of knob.js inline styles
     display: block !important;
     margin: 0 auto;
   }
+}
+
+.a1dmonitor-archive-monitor-item{
+  border-bottom: 1px solid $a1dmonitor-gray;
 }
 
 .a1dmonitor-nav-item.active{
