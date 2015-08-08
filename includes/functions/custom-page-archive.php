@@ -58,7 +58,7 @@ function a1dmonitor_register_custom_post() {
 function a1dmonitor_add_metaboxes() {
 
   // Add URL metabox
-  add_meta_box( 
+  add_meta_box(
     'a1dmonitor_monitor_site_url',
     'Site URL',
     __NAMESPACE__ . '\a1dmonitor_monitor_site_url',
@@ -66,7 +66,7 @@ function a1dmonitor_add_metaboxes() {
   );
 }
 
-/* 
+/*
  * Generate HTML for URL metabox
  *
  * @uses get_post_meta()
@@ -91,27 +91,27 @@ function a1dmonitor_monitor_site_url() {
 
 function a1dmonitor_save_meta_values() {
 
-  if( $_POST ) {
+  if ( $_POST ) {
     global $post;
-    if( !wp_verify_nonce( $_POST['a1dmonitor_site_url_noncename'], plugin_basename(__FILE__) ) ) {
-      return $post->ID;
-    } 
-    if( !current_user_can( 'edit_post', $post->ID ) ) {
+    if ( !wp_verify_nonce( $_POST['a1dmonitor_site_url_noncename'], plugin_basename(__FILE__) ) ) {
       return $post->ID;
     }
-  
+    if ( !current_user_can( 'edit_post', $post->ID ) ) {
+      return $post->ID;
+    }
+
     $monitor_meta['a1dmonitor_site_url'] = esc_url( $_POST['a1dmonitor_site_url'] );
-    foreach( $monitor_meta as $key => $value ) { 
-      if( $post->post_type == 'revision' ) return; 
-      if( get_post_meta( $post->ID, $key, FALSE ) ) { 
+    foreach( $monitor_meta as $key => $value ) {
+      if ( $post->post_type == 'revision' ) return;
+      if ( get_post_meta( $post->ID, $key, FALSE ) ) {
         $ur_monitor_id = a1dmonitor_monitor_service( $value, "update" );
         update_post_meta( $post->ID, $key, $value );
-      } else { 
+      } else {
         $ur_monitor_id = a1dmonitor_monitor_service( $value, "add" );
         add_post_meta( $post->ID, $key, $value );
         add_post_meta( $post->ID, 'a1dmonitor_ur_id', $ur_monitor_id );
       }
-      if( !$value ) {
+      if ( !$value ) {
         $ur_monitor_id= a1dmonitor_monitor_service( $value, "destroy" );
         delete_post_meta( $post->ID, $key );
       }
@@ -125,7 +125,7 @@ add_action( 'save_post', __NAMESPACE__ . '\a1dmonitor_save_meta_values', 1, 2 );
  * Register a new Uptime Robot monitor
  *
  *
- *@returns string UR id 
+ *@returns string UR id
  */
 
 function a1dmonitor_monitor_service( $url, $action ) {
@@ -137,17 +137,17 @@ function a1dmonitor_monitor_service( $url, $action ) {
   if ( isset($meta['a1dmonitor_ur_id'] ) ) {
     $monitor_id = $meta['a1dmonitor_ur_id'][0];
   }
-  $friendly_name = urlencode( get_the_title( $post->ID ) ); 
+  $friendly_name = urlencode( get_the_title( $post->ID ) );
   $monitor_url = urlencode( $url );
 
   if ( "add" === $action ) {
     // If adding a monitor for the first time
     $api_url = "https://api.uptimerobot.com/newMonitor?apiKey={$api_key}&monitorFriendlyName={$friendly_name}&monitorURL={$monitor_url}&monitorType=1";
-    $response = wp_remote_get( $api_url ); 
+    $response = wp_remote_get( $api_url );
     $xml = simplexml_load_string( $response['body'] );
     // Error ids are within the 200's
     if ( 240 < intval( $xml->attributes()->id ) ) {
-     return intval( $xml->attributes()->id ); 
+     return intval( $xml->attributes()->id );
     }
   }
 
@@ -157,7 +157,7 @@ function a1dmonitor_monitor_service( $url, $action ) {
     $response = wp_remote_get( $api_url );
     $xml = simplexml_load_string( $response['body'] );
     if ( 240 > intval( $xml->attributes()->id ) ) {
-      update_post_meta( $post->ID, 'a1dmonitor_site_url', $url ); 
+      update_post_meta( $post->ID, 'a1dmonitor_site_url', $url );
     }
   }
 
@@ -168,8 +168,8 @@ function a1dmonitor_monitor_service( $url, $action ) {
     $xml = simplexml_load_string( $response['body'] );
     var_dump($xml);
     if ( 240 > intval( $xml->attributes()->id ) ) {
-      delete_post_meta( $post->ID, 'a1dmonitor_site_url', $url ); 
-      delete_post_meta( $post->ID, 'a1dmonitor_ur_id', $monitor_id ); 
+      delete_post_meta( $post->ID, 'a1dmonitor_site_url', $url );
+      delete_post_meta( $post->ID, 'a1dmonitor_ur_id', $monitor_id );
     }
 
   }
@@ -178,7 +178,7 @@ function a1dmonitor_monitor_service( $url, $action ) {
 /*
  * Register templates for monitor pages
  *
- * @returns template path for individual monitor 
+ * @returns template path for individual monitor
  */
 
 add_filter( 'single_template', __NAMESPACE__ . '\a1dmonitor_register_custom_post_template' );
@@ -189,7 +189,7 @@ function a1dmonitor_register_custom_post_template() {
   if ( "monitor" == $post->post_type ) {
     if ( file_exists ( A1DMONITOR_INC . '/templates/monitor-page.php' ) ) {
       return A1DMONITOR_INC . '/templates/monitor-page.php';
-    } 
+    }
   }
 }
 
@@ -201,7 +201,7 @@ function a1dmonitor_register_custom_post_template() {
  * @returns template for monitor archive
  */
 
-add_filter( 'archive_template', __NAMESPACE__ . '\a1dmonitor_register_custom_archive_template' ); 
+add_filter( 'archive_template', __NAMESPACE__ . '\a1dmonitor_register_custom_archive_template' );
 
 function a1dmonitor_register_custom_archive_template() {
 

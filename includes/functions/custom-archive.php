@@ -6,8 +6,8 @@ $monitor_ids = array();
 /*
  * Return all monitors
  *
- * @uses WP_Query 
- * if ids is true, returns api_ids 
+ * @uses WP_Query
+ * if ids is true, returns api_ids
  *
  * @returns array
  */
@@ -24,7 +24,7 @@ function a1dmonitor_monitors() {
   return $monitors;
 }
 
-/* 
+/*
  * Generate navigation of active monitors
  *
  * @uses get_the_ID()
@@ -39,13 +39,11 @@ function a1dmonitor_build_sidenav( $monitors ) {
 
   global $post, $monitor_ids;
   $nav = "<ul class='nav nav-sadebar'>";
-  while( $monitors->have_posts() ): $monitors->the_post();
-
+  while ( $monitors->have_posts() ): $monitors->the_post();
     $meta = get_post_meta( $post->ID );
     $monitor_id = $meta['a1dmonitor_ur_id'];
     array_push( $monitor_ids, $monitor_id );
     $nav .= "<li class='a1dmonitor-nav-item'><a href='" . get_the_permalink() . "'>" . get_the_title() . "</a></li>";
-
   endwhile;
 
   wp_reset_query();
@@ -57,18 +55,23 @@ function a1dmonitor_build_sidenav( $monitors ) {
  * Generate the main body content
  * call UR API to retrieve status
  *
+ * @uses get_post_meta()
+ * @uses get_option()
+ * @uses wp_remote_get()
+ * @uses simplexml_load_string()
+ *
  * @returns string html,javascript
  */
 
 function a1dmonitor_build_archive() {
-  
+
   global $post, $monitor_ids;
   $meta = get_post_meta($post->ID);
   $options = get_option( 'a1dmonitor_monitoring_options' );
   $api_key = $options['api_key'];
   $info = array();
 
-  if( array_key_exists( 'a1dmonitor_ur_id', $meta ) ) {
+  if ( array_key_exists( 'a1dmonitor_ur_id', $meta ) ) {
     $monitors_string = '';
     foreach ( $monitor_ids as $monitor_id ) {
       $monitors_string .= $monitor_id[0] . '-';
@@ -86,17 +89,17 @@ function a1dmonitor_build_archive() {
       );
 
       $status_int = intval( $monitor->attributes()->status );
-      if( 3 > $status_int ) { 
+      if ( 3 > $status_int ) {
         $status['text'] = 'Up';
         $status['class'] = 'a1dmonitor-all-clear';
         $status['image'] = 'a1dmonitor-smile.png';
-        
+
       } else {
         $status['text'] = 'Down / Unreachable';
         $status['class'] = 'a1dmonitor-all-bad';
         $status['image'] = 'a1dmonitor-frown.png';
       };
-    
+
       $info = array(
         'status' => $status,
         'response_time' => $monitor->responsetime->attributes()->value,
@@ -130,26 +133,25 @@ function a1dmonitor_build_archive() {
 
 function a1dmonitor_determine_wordpress_info( $site_url ){
 
-  $feed_url = $site_url . "?feed=rss"; 
+  $feed_url = $site_url . "?feed=rss";
   $response = wp_remote_get( $feed_url );
-  if( is_wp_error( $response ) ) {
+  if ( is_wp_error( $response ) ) {
     return;
   }
   $xml = simplexml_load_string( $response['body'] );
-  if( is_wp_error( $xml ) ) {
+  if ( is_wp_error( $xml ) ) {
     return;
   }
   $generator_string = '';
-  if( $xml->channel->generator ){
+  if ( $xml->channel->generator ){
     $generator_string = $xml->channel->generator;
   }
   $info = array(
     'version' => '',
     'description' => ''
   );
-  $version = preg_match( '^(\d+\.)?(\d+\.)?(\*|\d+)$^', $generator_string, $matches );  
+  $version = preg_match( '^(\d+\.)?(\d+\.)?(\*|\d+)$^', $generator_string, $matches );
   $info['version'] = $matches[0];
-  $info['description'] = $xml->channel->description; 
-  return $info; 
+  $info['description'] = $xml->channel->description;
+  return $info;
 }
-

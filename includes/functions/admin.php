@@ -1,7 +1,7 @@
 <?php
 namespace TenUp\A1D_Monitoring_and_Management\Core;
 
-/* 
+/*
  * Build admin dashboard
  * Uses the Uptime Robot API (https://uptimerobot.com/api) to gather and
  * create new monitors for individual sites
@@ -14,14 +14,14 @@ namespace TenUp\A1D_Monitoring_and_Management\Core;
  * @uses wp_register_style()
  * @uses wp_enqueue_style()
  *
- * @returns void
+ * @return void
  */
 
 function a1dmonitor_load_admin_styles() {
 
   wp_register_style( 'a1dmonitor_admin_css' , A1DMONITOR_URL . '/assets/css/ad-monitoring-and-management-admin.css', false );
   wp_enqueue_style( 'a1dmonitor_admin_css' );
-} 
+}
 
 
 /*
@@ -40,7 +40,7 @@ function a1dmonitor_settings_init() {
     'a1dmonitor_monitoring_options',
     'a1dmonitor_monitoring_options',
     __NAMESPACE__ . '\a1dmonitor_options_validation'
-  );  
+  );
   add_settings_section(
     'a1dmonitor_monitoring_settings',
     'Monitoring Settings',
@@ -50,7 +50,7 @@ function a1dmonitor_settings_init() {
   add_settings_field(
     'a1dmonitor_api_key',
     'Uptime Robot API key',
-    __NAMESPACE__ . '\a1dmonitor_settings_api_key', 
+    __NAMESPACE__ . '\a1dmonitor_settings_api_key',
     'a1d-monitoring',
     'a1dmonitor_monitoring_settings'
   );
@@ -61,7 +61,7 @@ function a1dmonitor_settings_init() {
  *
  * @uses get_option()
  *
- * @returns string html
+ * @return string html
  */
 
 function a1dmonitor_settings_info() {
@@ -73,8 +73,8 @@ function a1dmonitor_settings_info() {
     if ( true === is_uptime_robot_api_key_is_valid( $options['api_key'] ) ) {
       $is_registered = true;
       a1dmonitor_register_custom_post();
-    } 
-  }; 
+    }
+  };
 
   if ( false == $is_registered ) {
     $info .= "<p class='a1dmonitor_important'>This plugin utilizes the Uptime Robot service to monitor your WordPress site(s). Please register with the site <a href='https://uptimerobot.com/#newUser' target='_blank'>here</a> by clicking the 'Sign-up (free)' button. Once registered, please retreive your Main API key <a href='https://uptimerobot.com/dashboard#mySettings' target='_blank'>here</a>, and scrolling to the API Settings section.";
@@ -84,11 +84,14 @@ function a1dmonitor_settings_info() {
 /*
  * Accept user API input
  *
- *@return string 32 char API key
+ * @uses get_option()
+ *
+ *
+ * @return string 32 char API key
  */
 
 function a1dmonitor_settings_api_key() {
-  
+
   $options = get_option( 'a1dmonitor_monitoring_options' );
   if ( array_key_exists( 'api_key', $options ) ) {
     $valid_api_key = is_uptime_robot_api_key_is_valid( $options['api_key'] );
@@ -104,19 +107,21 @@ function a1dmonitor_settings_api_key() {
 
 /*
  * Validate user input of monitoring options
- * 
- * @returns array validated input
+ *
+ * @uses get_option()
+ *
+ * @return array validated input
  */
 
 function a1dmonitor_options_validation( $input ) {
-  
-  $options = get_option( 'a1dmonitor_monitoring_options' ); 
+
+  $options = get_option( 'a1dmonitor_monitoring_options' );
   $new_input = array();
 
   if ( $input['api_key'] ) {
     if ( true === is_uptime_robot_api_key_is_valid( $input['api_key'] ) ) {
-     $new_input['api_key'] = $input['api_key']; 
-    } else { 
+     $new_input['api_key'] = $input['api_key'];
+    } else {
       $new_input['api_key'] = '';
       //show error
     }
@@ -130,6 +135,8 @@ function a1dmonitor_options_validation( $input ) {
  * @uses wp_remote_get()
  * @uses wp_remote_retrieve_body()
  * @uses is_wp_error()
+ * @uses sanitize_key()
+ * @uses simplexml_load_string()
  *
  * @returns  bool
  */
@@ -141,7 +148,7 @@ function is_uptime_robot_api_key_is_valid( $key ) {
   if ( preg_match( "/^[A-Za-z0-9-]+$/", $key ) && 32 === strlen( $key ) ) {
     //$validity = true;
     $uri = "https://api.uptimerobot.com/getMonitors?apiKey={$key}";
-    $response = wp_remote_get( $uri ); 
+    $response = wp_remote_get( $uri );
     if ( !is_wp_error( $response ) ) {
       $xml = simplexml_load_string( wp_remote_retrieve_body( $response ) );
       if ( !is_wp_error( $xml ) ) {
@@ -163,7 +170,7 @@ function is_uptime_robot_api_key_is_valid( $key ) {
 /*
  * Generate Admin dashboard
  *
- * @uses add_options_page()
+ * @uses add_menu_page()
  *
  * @return void
  */
@@ -173,7 +180,7 @@ function register_a1dmonitor_admin() {
   add_menu_page( 'A1D Monitoring and Mangagement', 'Monitoring', 'manage_options', 'a1d-monitoring', '\TenUp\A1D_Monitoring_and_Management\Core\a1dmonitor_dashboard', 'dashicons-desktop', 62 );
 }
 
-/* 
+/*
  * Build HTMl dashboard
  *
  * @return string html

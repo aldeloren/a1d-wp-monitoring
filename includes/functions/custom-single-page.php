@@ -4,7 +4,7 @@ namespace TenUp\A1D_Monitoring_and_Management\Core;
 /*
  * Return all monitors
  *
- * @uses WP_Query 
+ * @uses WP_Query
  *
  * @returns array
  */
@@ -21,7 +21,7 @@ function a1dmonitor_monitors() {
   return $monitors;
 }
 
-/* 
+/*
  * Generate navigation of active monitors
  *
  * @uses get_the_ID()
@@ -37,15 +37,14 @@ function a1dmonitor_build_sidenav( $monitors ) {
   global $post;
   $current = $post->ID;
   $nav = "<ul class='nav nav-sadebar'>";
-  while( $monitors->have_posts() ): $monitors->the_post();
-
-    if( get_the_ID() == $current ) {
+  while ( $monitors->have_posts() ): $monitors->the_post();
+    if ( get_the_ID() == $current ) {
       $nav .= "<li class='a1dmonitor-nav-item active'><a href='" . get_the_permalink() . "'>" . get_the_title() . "</a></li>";
     } else {
       $nav .= "<li class='a1dmonitor-nav-item'><a href='" . get_the_permalink() . "'>" . get_the_title() . "</a></li>";
     }
-
   endwhile;
+
   wp_reset_query();
   $nav .= "</ul>";
   echo $nav;
@@ -55,18 +54,26 @@ function a1dmonitor_build_sidenav( $monitors ) {
  * Generate the main body content
  * call UR API to retrieve status
  *
+ * @uses wp_remote_get()
+ * @uses get_post_meta()
+ * @uses get_option()
+ * @uses simplexml_load_string()
+ * @uses get_post_type_object()
+ * @uses get_post_type()
+ * @uses get_home_url()
+ *
  * @returns string html,javascript
  */
 
 function a1dmonitor_build_main() {
-  
+
   global $post;
   $meta = get_post_meta($post->ID);
   $options = get_option( 'a1dmonitor_monitoring_options' );
   $api_key = $options['api_key'];
   $info = array();
-  
-  if( array_key_exists( 'a1dmonitor_ur_id', $meta ) ) {
+
+  if ( array_key_exists( 'a1dmonitor_ur_id', $meta ) ) {
     $monitor_id = $meta['a1dmonitor_ur_id'][0];
     $monitor_url = "https://api.uptimerobot.com/getMonitors?apiKey={$api_key}&monitors={$monitor_id}&responseTimes=1&responseTimesAverage=86400";
     $response = wp_remote_get( $monitor_url );
@@ -74,7 +81,6 @@ function a1dmonitor_build_main() {
     $monitor = $xml->monitor;
     $post_type_data = get_post_type_object( get_post_type() );
     $post_slug = get_home_url()  . '/' . $post_type_data->rewrite['slug'] . '/';
-    $monitors_home = get_home_url . '/monitor/';
     $status = array(
       'text' => '',
       'class' => '',
@@ -82,17 +88,17 @@ function a1dmonitor_build_main() {
     );
 
     $status_int = intval( $monitor->attributes()->status );
-    if( 3 > $status_int ) {
+    if ( 3 > $status_int ) {
       $status['text'] = 'Up';
       $status['class'] = 'a1dmonitor-all-clear';
       $status['image'] = 'a1dmonitor-smile.png';
-      
+
     } else {
       $status['text'] = 'Down / Unreachable';
       $status['class'] = 'a1dmonitor-all-bad';
       $status['image'] = 'a1dmonitor-frown.png';
     };
-  
+
     $info = array(
       'status' => $status,
       'response_time' => '0',
@@ -100,7 +106,7 @@ function a1dmonitor_build_main() {
       'url' => $meta['a1dmonitor_site_url'][0],
       'title' => get_the_title()
     );
-    if( isset( $monitor->responsetime->attributes()->value ) ) {
+    if ( isset( $monitor->responsetime->attributes()->value ) ) {
       $info['response_time'] = $monitor->responsetime->attributes()->value;
     }
     $image = A1DMONITOR_URL . 'images/' . $info['status']['image'];
@@ -130,37 +136,39 @@ function a1dmonitor_build_main() {
  * TODO scape source for most recent version
  *
  * @uses wp_remote_get()
+ * @uses wp_remote_retrieve_body()
  * @uses is_wp_error()
+ * @uses simplexml_load_string()
  *
  * @returns string wordpress version
  */
 
 function a1dmonitor_determine_wordpress_info( $site_url ){
 
-  $feed_url = $site_url . "?feed=rss"; 
+  $feed_url = $site_url . "?feed=rss";
   $response = wp_remote_get( $feed_url );
-  if( is_wp_error( $response ) ) {
+  if ( is_wp_error( $response ) ) {
     return;
   }
   libxml_use_internal_errors(true);
   $xml = simplexml_load_string( wp_remote_retrieve_body( $response ) );
 
-  if( is_wp_error( $xml ) ) {
+  if ( is_wp_error( $xml ) ) {
     return;
   }
 
-  if( $xml ) {
+  if ( $xml ) {
     $generator_string = '';
-    if( $xml->channel->generator ){
+    if ( $xml->channel->generator ){
       $generator_string = $xml->channel->generator;
     }
     $info = array(
       'version' => '',
       'description' => ''
     );
-    $version = preg_match( '^(\d+\.)?(\d+\.)?(\*|\d+)$^', $generator_string, $matches );  
+    $version = preg_match( '^(\d+\.)?(\d+\.)?(\*|\d+)$^', $generator_string, $matches );
     $info['version'] = $matches[0];
-    $info['description'] = $xml->channel->description; 
-    return $info; 
+    $info['description'] = $xml->channel->description;
+    return $info;
   }
 }
