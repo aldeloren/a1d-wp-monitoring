@@ -91,26 +91,30 @@ function a1dmonitor_monitor_site_url() {
 function a1dmonitor_save_meta_values() {
 
   if( $_POST ) {
-  global $post;
-  if( !wp_verify_nonce( $_POST['a1dmonitor_site_url_noncename'], plugin_basename(__FILE__) ) ) {
-    return $post->ID;
-  } 
-  if( !current_user_can( 'edit_post', $post->ID ) ) {
-    return $post->ID;
-  }
-  $monitor_meta['a1dmonitor_site_url'] = esc_url( $_POST['a1dmonitor_site_url'] );
-
-  foreach( $monitor_meta as $key => $value ) { 
-    if( $post->post_type == 'revision' ) return; 
-    if( get_post_meta( $post->ID, $key, FALSE ) ) { 
-      update_post_meta( $post->ID, $key, $value );
-    } else { 
-      $ur_monitor_id = a1dmonitor_new_monitor( $value );
-      add_post_meta( $post->ID, $key, $value );
-      add_post_meta( $post->ID, 'a1dmonitor_ur_id', $ur_monitor_id );
+    global $post;
+    if( !wp_verify_nonce( $_POST['a1dmonitor_site_url_noncename'], plugin_basename(__FILE__) ) ) {
+      return $post->ID;
+    } 
+    if( !current_user_can( 'edit_post', $post->ID ) ) {
+      return $post->ID;
     }
-    if( !$value ) delete_post_meta( $post->ID, $key );
-  }
+  
+    $monitor_meta['a1dmonitor_site_url'] = esc_url( $_POST['a1dmonitor_site_url'] );
+    foreach( $monitor_meta as $key => $value ) { 
+      if( $post->post_type == 'revision' ) return; 
+      if( get_post_meta( $post->ID, $key, FALSE ) ) { 
+        $ur_monitor_id = a1dmonitor_monitor_service( $value, "update" );
+        update_post_meta( $post->ID, $key, $value );
+      } else { 
+        $ur_monitor_id = a1dmonitor_monitor_service( $value, "add" );
+        add_post_meta( $post->ID, $key, $value );
+        add_post_meta( $post->ID, 'a1dmonitor_ur_id', $ur_monitor_id );
+      }
+      if( !$value ) {
+        $ur_monitor_id= a1dmonitor_monitor_service( $value, "destroy" );
+        delete_post_meta( $post->ID, $key );
+      }
+    }
   }
 }
 
@@ -123,21 +127,50 @@ add_action( 'save_post', __NAMESPACE__ . '\a1dmonitor_save_meta_values', 1, 2 );
  *@returns string UR id 
  */
 
-function a1dmonitor_new_monitor( $url ) {
+function a1dmonitor_monitor_service( $url, $action ) {
 
   global $post;
   $options = get_option( 'a1dmonitor_monitoring_options' );
   $api_key = $options['api_key'];
+  $meta = get_post_meta( $post->ID );
+  if ( isset($meta['a1dmonitor_ur_id'] ) ) {
+    $monitor_id = $meta['a1dmonitor_ur_id'][0];
+  }
   $friendly_name = urlencode( get_the_title( $post->ID ) ); 
   $monitor_url = urlencode( $url );
-  $api_url = "https://api.uptimerobot.com/newMonitor?apiKey={$api_key}&monitorFriendlyName={$friendly_name}&monitorURL={$monitor_url}&monitorType=1";
 
+  if ( "add" === $action ) {
+    // If adding a monitor for the first time
+    $api_url = "https://api.uptimerobot.com/newMonitor?apiKey={$api_key}&monitorFriendlyName={$friendly_name}&monitorURL={$monitor_url}&monitorType=1";
+    $response = wp_remote_get( $api_url ); 
+    $xml = simplexml_load_string( $response['body'] );
+    // Error ids are within the 200's
+    if ( 240 < intval( $xml->attributes()->id ) ) {
+     return intval( $xml->attributes()->id ); 
+    }
+  }
 
-  $response = wp_remote_get( $api_url ); 
-  $xml = simplexml_load_string ( $response['body'] );
-  // Error ids are within the 200's
-  if ( 240 < intval( $xml->attributes()->id ) ) {
-   return intval( $xml->attributes()->id ); 
+  if ( "update" === $action ) {
+    // If modifying a preexisting monitor
+    $api_url = "https://api.uptimerobot.com/editMonitor?apiKey={$api_key}&monitorID={$monitor_id}&monitorFriendlyName={$friendly_name}&monitorURL={$monitor_url}";
+    $response = wp_remote_get( $api_url );
+    $xml = simplexml_load_string( $response['body'] );
+    if ( 240 > intval( $xml->attributes()->id ) ) {
+      update_post_meta( $post->ID, 'a1dmonitor_site_url', $url ); 
+    }
+  }
+
+  if ( "destroy" === $action ) {
+    // If removing a preexisting monitor
+    $api_url = "https://api.uptimerobot.com/deleteMonitor?apiKey={$api_key}&monitorID={$monitor_id}";
+    $response = wp_remote_get( $api_url );
+    $xml = simplexml_load_string( $response['body'] );
+    var_dump($xml);
+    if ( 240 > intval( $xml->attributes()->id ) ) {
+      delete_post_meta( $post->ID, 'a1dmonitor_site_url', $url ); 
+      delete_post_meta( $post->ID, 'a1dmonitor_ur_id', $monitor_id ); 
+    }
+
   }
 }
 
