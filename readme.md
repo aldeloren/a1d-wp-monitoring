@@ -12,6 +12,7 @@ A WordPress plugin for remote monitoring and management of other WordPress sites
 
 ## Description ##
 
+Easily add additional WordPress websites with this plugin, and monitor their status and uptime. 
 
 
 ## Installation ##
@@ -36,3 +37,8 @@ A WordPress plugin for remote monitoring and management of other WordPress sites
 
 ### 0.1.0 ###
 First Release
+
+## TODO ##
+* Add better way to determine WP version (rss generator tags aren't updated unless posts are generated)
+* Allow for remote updates
+* enable email notifications
