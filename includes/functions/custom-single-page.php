@@ -68,7 +68,7 @@ function a1dmonitor_build_main() {
   
   if( array_key_exists( 'a1dmonitor_ur_id', $meta ) ) {
     $monitor_id = $meta['a1dmonitor_ur_id'][0];
-    $monitor_url = "https://api.uptimerobot.com/getMonitors?apiKey={$api_key}&monitors={$monitor_id}&responseTimes=1&responseTimesAverage=1";
+    $monitor_url = "https://api.uptimerobot.com/getMonitors?apiKey={$api_key}&monitors={$monitor_id}&responseTimes=1&responseTimesAverage=86400";
     $response = wp_remote_get( $monitor_url );
     $xml = simplexml_load_string( $response['body'] );
     $monitor = $xml->monitor;
@@ -78,7 +78,8 @@ function a1dmonitor_build_main() {
       'image' => ''
     );
 
-    if( "1" == $monitor->attributes()->status || "2" == $monitor->attributes()->status ) {
+    $status_int = intval( $monitor->attributes()->status );
+    if( 3 > $status_int ) {
       $status['text'] = 'Up';
       $status['class'] = 'a1dmonitor-all-clear';
       $status['image'] = 'a1dmonitor-smile.png';
@@ -91,28 +92,31 @@ function a1dmonitor_build_main() {
   
     $info = array(
       'status' => $status,
-      'response_time' => $monitor->responsetime->attributes()->value,
+      'response_time' => '0',
       'uptime' => $monitor->attributes()->alltimeuptimeratio,
       'url' => $meta['a1dmonitor_site_url'][0],
       'title' => get_the_title()
     );
-  }
-  $image = A1DMONITOR_URL . 'images/' . $info['status']['image'];
-  $remote_info = a1dmonitor_determine_wordpress_info( $info['url'] );
+    if( isset( $monitor->responsetime->attributes()->value ) ) {
+      $info['response_time'] = $monitor->responsetime->attributes()->value;
+    }
+    $image = A1DMONITOR_URL . 'images/' . $info['status']['image'];
+    $remote_info = a1dmonitor_determine_wordpress_info( $info['url'] );
 
-  $content = "<div class='container'><div class='col-sm-12'><h1>Site: {$info['title']} <span class='a1dmonitor-site-title-url'>({$info['url']})</span></h1></div></div>";
-  $content .= "<div class='row'><div class='col-sm-6 a1dmonitor-status-container {$info['status']['class']}'><h3 class='text-center'>Status: {$info['status']['text']}</h3>";
-  $content .= "<h4 class='text-center'>Uptime: {$info['uptime']}%</h4>";
-  $content .= "<img class='a1dmonitor-status-image' src='{$image}'></div>";
-  $content .= "<div class='col-sm-6 a1dmonitor-container'><h3 class='text-center'>Response Time</h3>";
-  $content .= "<input data-angleoffset='-125' data-anglearc='250' data-fgcolor='#66EE66'data-min='0' data-max='1000' data-readOnly=true value='{$info['response_time']}' class='a1dmonitor-response-time'></div></div>";
-  $content .= "<div class='row'><div class='container'><div class='col-sm-6'>";
-  if ( $remote_info['version'] ) {
-    $content .= "<p><strong>Wordpress version:</strong> {$remote_info['version']}</p>";
-    $content .= "<p><strong>Description:</strong> {$remote_info['description']}</p>";
+    $content = "<div class='col-sm-12'><h1>Site: {$info['title']} <span class='a1dmonitor-site-title-url'>({$info['url']})</span></h1></div>";
+    $content .= "<div class='col-sm-6 a1dmonitor-status-container {$info['status']['class']}'><h3 class='text-center'>Status: {$info['status']['text']}</h3>";
+    $content .= "<h4 class='text-center'>Uptime: {$info['uptime']}%</h4>";
+    $content .= "<img class='a1dmonitor-status-image' src='{$image}'></div>";
+    $content .= "<div class='col-sm-6 a1dmonitor-container'><h3 class='text-center'>Response Time</h3>";
+    $content .= "<input data-angleoffset='-125' data-anglearc='250' data-fgcolor='#66EE66'data-min='0' data-max='1000' data-readOnly=true value='{$info['response_time']}' class='a1dmonitor-response-time'></div>";
+    $content .= "<div class='col-sm-6'>";
+    if ( $remote_info['version'] ) {
+      $content .= "<p><strong>Wordpress version:</strong> {$remote_info['version']}</p>";
+      $content .= "<p><strong>Description:</strong> {$remote_info['description']}</p>";
+    }
+    $content .= "</div></div>";
+    echo $content;
   }
-  $content .= "</div></div></div>";
-  echo $content;
 }
 
 /*
@@ -133,20 +137,25 @@ function a1dmonitor_determine_wordpress_info( $site_url ){
   if( is_wp_error( $response ) ) {
     return;
   }
-  $xml = simplexml_load_string( $response['body'] );
+  libxml_use_internal_errors(true);
+  $xml = simplexml_load_string( wp_remote_retrieve_body( $response ) );
+
   if( is_wp_error( $xml ) ) {
     return;
   }
-  $generator_string = '';
-  if( $xml->channel->generator ){
-    $generator_string = $xml->channel->generator;
+
+  if( $xml ) {
+    $generator_string = '';
+    if( $xml->channel->generator ){
+      $generator_string = $xml->channel->generator;
+    }
+    $info = array(
+      'version' => '',
+      'description' => ''
+    );
+    $version = preg_match( '^(\d+\.)?(\d+\.)?(\*|\d+)$^', $generator_string, $matches );  
+    $info['version'] = $matches[0];
+    $info['description'] = $xml->channel->description; 
+    return $info; 
   }
-  $info = array(
-    'version' => '',
-    'description' => ''
-  );
-  $version = preg_match( '^(\d+\.)?(\d+\.)?(\*|\d+)$^', $generator_string, $matches );  
-  $info['version'] = $matches[0];
-  $info['description'] = $xml->channel->description; 
-  return $info; 
 }
