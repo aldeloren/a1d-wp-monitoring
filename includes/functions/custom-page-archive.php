@@ -20,7 +20,7 @@ function a1dmonitor_register_custom_post() {
     'edit_item' => __( 'Edit Monitor' ),
     'new_item' => __( 'New Monitor' ),
     'all_items' => __( 'All Monitors' ),
-    'view_item' => __( 'View Monitors' ),
+    'view_item' => __( 'View Monitor' ),
     'search_items' => __( 'Search Monitors' ),
     'not_found' => __( 'No Monitors found' ),
     'not_found_in_trash' => __( 'No Monitors found in Trash' ),
@@ -90,6 +90,7 @@ function a1dmonitor_monitor_site_url() {
 
 function a1dmonitor_save_meta_values() {
 
+  if( $_POST ) {
   global $post;
   if( !wp_verify_nonce( $_POST['a1dmonitor_site_url_noncename'], plugin_basename(__FILE__) ) ) {
     return $post->ID;
@@ -109,6 +110,7 @@ function a1dmonitor_save_meta_values() {
       add_post_meta( $post->ID, 'a1dmonitor_ur_id', $ur_monitor_id );
     }
     if( !$value ) delete_post_meta( $post->ID, $key );
+  }
   }
 }
 
