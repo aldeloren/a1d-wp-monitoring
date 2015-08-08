@@ -44,6 +44,7 @@ function a1dmonitor_register_custom_post() {
     'register_meta_box_cb' => __NAMESPACE__ . '\a1dmonitor_add_metaboxes'
   );
   register_post_type( 'Monitor', $args );
+  flush_rewrite_rules();
 }
 
 /*

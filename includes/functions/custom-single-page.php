@@ -72,6 +72,9 @@ function a1dmonitor_build_main() {
     $response = wp_remote_get( $monitor_url );
     $xml = simplexml_load_string( $response['body'] );
     $monitor = $xml->monitor;
+    $post_type_data = get_post_type_object( get_post_type() );
+    $post_slug = get_home_url()  . '/' . $post_type_data->rewrite['slug'] . '/';
+    $monitors_home = get_home_url . '/monitor/';
     $status = array(
       'text' => '',
       'class' => '',
@@ -114,6 +117,8 @@ function a1dmonitor_build_main() {
       $content .= "<p><strong>Wordpress version:</strong> {$remote_info['version']}</p>";
       $content .= "<p><strong>Description:</strong> {$remote_info['description']}</p>";
     }
+    $content .= "<p><a href='{$post_slug}'><div class='a1dmonitor-button btn btn-primary'>View all monitors</div></a></p>";
+    $content .= "<p><a href='{$info['url']}' target='_blank'><div class='a1dmonitor-button btn btn-primary'>Visit site</div></a></p>";
     $content .= "</div></div>";
     echo $content;
   }

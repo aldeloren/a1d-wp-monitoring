@@ -12,6 +12,9 @@ body::before {
   display: block !important;
   margin: 0 auto; }
 
+.a1dmonitor-button a {
+  color: #fff; }
+
 .a1dmonitor-archive-monitor-item {
   border-bottom: 1px solid #eee; }
 
